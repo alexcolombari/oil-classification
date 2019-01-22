@@ -1,9 +1,14 @@
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+from sklearn.utils.class_weight import compute_class_weight
 
 def load_dataset():
-    data_folder = "/opt/data_repository/oil_samples/"
-    file_to_open = data_folder + "half-samples.pkl"
+    #data_folder = "/opt/data_repository/oil_samples/"
+    #file_to_open = data_folder + "half-samples.pkl"
+
+    #data_folder = "/opt/data_repository/oil_samples/"
+    file_to_open = "laminas-dez.pkl"
     df = pd.read_pickle(file_to_open)
 
     imagens = df.loc[: , "lamina"]
@@ -13,9 +18,9 @@ def load_dataset():
     img2array = []
     labels2array = []
 
-    for i in range(4000):
+    for i in range(229):
         imgarr = np.array(imagens[i])
-        img_resize = np.resize(imgarr, (100, 133, 3))
+        img_resize = np.resize(imgarr, (10, 10, 3))  #100, 113, 3
         img2array.append(img_resize)
 
         labelsarr = np.asarray(labels[i])
@@ -25,3 +30,18 @@ def load_dataset():
     labels_array = np.array(labels2array)
 
     return img_array, labels_array
+
+def label_encoder(df):
+    le = LabelEncoder()
+    le.fit(df['classificacao'])
+    
+
+    return le
+
+# Class weight
+def class_weight_dataset(y):
+    y = y.flatten()
+    class_weight_list = compute_class_weight('balanced', np.unique(y), y)
+    class_weight = dict(zip(np.unique(y), class_weight_list))
+
+    return class_weight
