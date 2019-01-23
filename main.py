@@ -1,7 +1,9 @@
 import numpy as np
 from models import createModel
 from keras import backend as K
+from keras.callbacks import ModelCheckpoint
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from dataset import load_dataset, class_weight_dataset
 from keras.preprocessing.image import ImageDataGenerator
@@ -41,6 +43,7 @@ def train(img_array, labels_array):
     print("X_test shape: {}\nY_test shape: {}".format(X_test.shape, Y_test.shape))
 
     exit()
+
     # Input shape values
     inputShape = (10, 10, 3)
 
@@ -50,11 +53,16 @@ def train(img_array, labels_array):
     epochs = 100
     trainmodel.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
  
+    # CHECKPOINT
+    filepath = "weights-improvement-{epoch:02d}-{val_acc:.2f}.hdf5"
+    checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True,
+        mode='max')
+    callbacks_list = [checkpoint]
 
     # Model fit with data aug
     history = trainmodel.fit_generator(
         aug.flow(X_train, Y_train, batch_size=batch_size),
-        epochs=epochs, verbose=1, steps_per_epoch=len(X_train)//batch_size,
+        epochs=epochs, callbacks=callbacks_list, verbose=1, steps_per_epoch=len(X_train)//batch_size,
         validation_data=(X_test, Y_test), class_weight = class_weight)
  
     scores = trainmodel.evaluate(X_test, Y_test)
@@ -66,11 +74,12 @@ def train(img_array, labels_array):
     matrix = confusion_matrix(Y_test.argmax(axis=1), Y_pred.argmax(axis=1))
     print(matrix)
 
+    y_pred = trainmodel.predict(X_test)
+    print(classification_report(Y_test, y_pred))
+
 '''
 y_test = np.argmax(Y_test, axis=1)
 y_pred = trainmodel.predict(X_test)
-print(classification_report(y_test, y_pred))
-
 
 # salva um arquivo do modelo
 trainmodel.save("model")'''
