@@ -7,7 +7,7 @@ def load_dataset():
     #data_folder = "/opt/data_repository/oil_samples/"
     #file_to_open = data_folder + "half-samples.pkl"
 
-    #data_folder = "/opt/data_repository/oil_samples/"
+    
     file_to_open = "laminas-dez.pkl"
     df = pd.read_pickle(file_to_open)
 
@@ -31,12 +31,35 @@ def load_dataset():
 
     return img_array, labels_array
 
+'''
 def label_encoder(df):
-    le = LabelEncoder()
-    le.fit(df['classificacao'])
+    labels = ['Particulas corrosivas',
+              'Fibras',
+              'Esferas',
+              'Oxido preto',
+              'Oxido vermelho',
+              'Arrancamento',
+              'Mancal',
+              'Desgaste deslizamento',
+              'Atrito normal',
+              'Esferas contaminante',
+              'Areia / sujeira',
+              'Engrenagem',
+              'Degradacao do lubrificante']
+
+    encoder = LabelEncoder()
+    encoder.fit(labels)
+
+    for i, item in enumerate(encoder.classes_):
+        print(item, '=>', i)
+    
     
 
-    return le
+    #le.fit(df['classificacao'])
+    
+
+    return df
+    '''
 
 # Class weight
 def class_weight_dataset(y):
