@@ -1,6 +1,7 @@
 import numpy as np
 from models import createModel
 from keras import backend as K
+from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
@@ -11,7 +12,7 @@ np.random.seed(42)
 
 # search Under and Over sampling or Class weight
 
-# (400 / 300) x 100 = new height
+# (400 / 300) x 100 = new height      (100 x 113, 3)
 '''
 def sensitivity(Y_test, Y_pred):
     true_positives = K.sum(K.round(K.clip(Y_test * Y_pred, 0, 1)))
@@ -33,6 +34,7 @@ def train(img_array, labels_array):
     X_test = X_test / 255.0
 
     class_weight = class_weight_dataset(Y_train)
+    
 
     # Data augmentation
     aug = ImageDataGenerator(rotation_range=25, width_shift_range=0.15,
@@ -42,40 +44,40 @@ def train(img_array, labels_array):
     print("X_train shape: {}\nY_train shape: {}".format(X_train.shape, Y_train.shape))
     print("X_test shape: {}\nY_test shape: {}".format(X_test.shape, Y_test.shape))
 
-    exit()
+    # INPUT SHAPE AND MODEL SETTINGS
+    IMG_DIMS = (10, 10, 3)
 
-    # Input shape values
-    inputShape = (10, 10, 3)
+    trainmodel = createModel(IMG_DIMS)
+    BATCH_SIZE = 3
+    EPOCHS = 100
+    INIT_LR = 1e-3
+    #opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
+    trainmodel.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
-    # Model
-    trainmodel = createModel(inputShape)
-    batch_size = 3
-    epochs = 100
-    trainmodel.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
- 
+    '''
     # CHECKPOINT
     filepath = "weights-improvement-{epoch:02d}-{val_acc:.2f}.hdf5"
     checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True,
         mode='max')
     callbacks_list = [checkpoint]
+    '''
 
-    # Model fit with data aug
+    # MODEL FIT WITH DATA AUG
     history = trainmodel.fit_generator(
-        aug.flow(X_train, Y_train, batch_size=batch_size),
-        epochs=epochs, callbacks=callbacks_list, verbose=1, steps_per_epoch=len(X_train)//batch_size,
+        aug.flow(X_train, Y_train, batch_size=BATCH_SIZE),
+        epochs=EPOCHS, verbose=1, steps_per_epoch=len(X_train)//BATCH_SIZE,
         validation_data=(X_test, Y_test), class_weight = class_weight)
- 
+
     scores = trainmodel.evaluate(X_test, Y_test)
     print("\nAccuracy: %.2f%%" % (scores[1]*100))
 
-    Y_pred = trainmodel.predict(X_test)
+    y_pred = trainmodel.predict(X_test)
+    y_pred[y_pred > 0.5] = 1
+    y_pred[y_pred <= 0.5] = 0
 
     print('\nConfusion Matrix')
-    matrix = confusion_matrix(Y_test.argmax(axis=1), Y_pred.argmax(axis=1))
+    matrix = confusion_matrix(Y_test.argmax(axis=1), y_pred.argmax(axis=1))
     print(matrix)
-
-    y_pred = trainmodel.predict(X_test)
-    print(classification_report(Y_test, y_pred))
 
 '''
 y_test = np.argmax(Y_test, axis=1)
