@@ -6,12 +6,11 @@ from keras import backend as K
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint
-#from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 from dataset import load_dataset
 from keras.preprocessing.image import ImageDataGenerator
 from sklearn.utils.class_weight import compute_class_weight
-np.random.seed(42)
+seed = np.random.seed(42)
 
 # search Under and Over sampling or Class weight
 
@@ -19,48 +18,39 @@ np.random.seed(42)
 
 def train(img_array, labels_array):
     # Spliting train and test data
-    X_train, X_test, Y_train, Y_test = train_test_split(img_array, labels_array)
-
-    
-    #class_weight_list = compute_class_weight('balanced', np.unique(Y_train), Y_train)
-    #class_weight = dict(zip(np.unique(Y_train), class_weight_list))
-    #X_train = X_train.astype('float64')
-    #X_test = X_test.astype('float64')
+    X_train, X_test, Y_train, Y_test = train_test_split(img_array, labels_array)   
 
     # Normalization
     X_train = X_train / 255.0
     X_test = X_test / 255.0
 
-
     # Data augmentation
     aug = ImageDataGenerator(rotation_range=25, width_shift_range=0.15,
         height_shift_range=0.15, shear_range=0.2, zoom_range=0.2, horizontal_flip=True, fill_mode="nearest")
-
-
-    ##class_weight = class_weight_dataset(Y_train)
     
     print("X_train shape: {}\nY_train shape: {}".format(X_train.shape, Y_train.shape))
     print("X_test shape: {}\nY_test shape: {}".format(X_test.shape, Y_test.shape))
 
+    
     # INPUT SHAPE AND MODEL SETTINGS
-    IMG_DIMS = (10, 10, 3)
+    IMG_DIMS = (300, 400, 3)
 
     trainmodel = createModel(IMG_DIMS)
-    BATCH_SIZE = 3
-    EPOCHS = 3
-    INIT_LR = 1e-3
-    #opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
-    opt = 'adam'
-    trainmodel.compile(optimizer=opt, loss='binary_crossentropy', metrics=['accuracy'])
+    BATCH_SIZE = 32
+    EPOCHS = 500
+    trainmodel.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
     '''
     # CHECKPOINT
-    filepath = "weights-improvement-{epoch:02d}-{val_acc:.2f}.hdf5"
+    directory = "model-save/"
+    filepath = directory + "acc-{epoch:02d}-{val_acc:.2f}.hdf5"
     checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True,
         mode='max')
     callbacks_list = [checkpoint]
     '''
 
+    #class_weight = class_weight_dataset(Y_train, Y_test)
+    
     # MODEL FIT WITH DATA AUG
     history = trainmodel.fit_generator(
         aug.flow(X_train, Y_train, batch_size=BATCH_SIZE),
@@ -71,7 +61,7 @@ def train(img_array, labels_array):
     print("\nAccuracy: %.2f%%" % (scores[1]*100))
 
     y_pred = trainmodel.predict_classes(X_test)
-    print(y_pred)
+    print("\nY predicted: \n", y_pred)
 
 
     # PLOT
@@ -100,6 +90,7 @@ def train(img_array, labels_array):
 trainmodel.save("model")'''
 
 dataset, labels = load_dataset()
+train(dataset, labels)
 
 #if __name__ == '__main__':
-train(dataset, labels)
+    #train()
