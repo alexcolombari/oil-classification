@@ -6,32 +6,33 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.utils.class_weight import compute_class_weight
 
 def load_dataset():
-    #data_folder = "/opt/data_repository/oil_samples/"
-    #file_to_open = data_folder + "half-samples.pkl"
+    data_folder = "/opt/data_repository/oil_samples/"
+    file_to_open = data_folder + "half-samples.pkl"
 
-    file_to_open = "laminas-dez.pkl"
+    #file_to_open = "laminas-dez.pkl"
     df = pd.read_pickle(file_to_open)
 
     imagens = df.loc[: , "lamina"]
     labels = df.loc[: , "classificacao"]
 
+    encoder = LabelEncoder()
+    labels_encoded = encoder.fit_transform(labels)
+
     # Conversao do dataset em array
     img2array = []
     labels2array = []
 
-    #Autoencoder
-
     for i in range(len(imagens)):
         imgarr = np.array(imagens[i])
-        img_resize = np.resize(imgarr, (300, 400, 3))  #100, 113, 3
+        img_resize = np.resize(imgarr, (100, 200, 3))  #100, 113, 3
         img2array.append(img_resize)
 
-        labelsarr = np.asarray(labels[i])
+        labelsarr = np.array(labels_encoded[i])
         labels2array.append(labelsarr)
 
-    img_array = np.array(img2array)
-    labels_array = np.array(labels2array)
-
+    img_array = np.asarray(img2array)
+    labels_array = np.asarray(labels2array)
+    
     return img_array, labels_array
 
 '''
@@ -64,5 +65,24 @@ def class_weight_dataset(y_train, y_test):
     y_train = keras.utils.to_categorical(y_train, num_classes = len(np.unique(y_train)))
     
     return class_weight, y_train, y_test
+
 '''
 
+
+'''
+labels = [
+        ([1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] = "Particulas corrosivas"),
+        ([0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] = "Fibras"),
+        ([0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] = "Esferas"),
+        ([0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] = "Oxido Preto"),
+        ([0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] = "Oxido Vermelho"),
+        ([0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] = "Arrancamento"),
+        ([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] = "Mancal"),
+        ([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0] = "Desgaste deslizamento"),
+        ([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0] = "Atrito normal"),
+        ([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0] = "Esferas contaminantes"),
+        ([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0] = "Areia / Sujeira"),
+        ([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0] = "Engrenagem"),
+        ([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0] = "Degradacao lubrificante")
+    ]
+'''
