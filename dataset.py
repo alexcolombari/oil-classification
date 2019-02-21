@@ -1,38 +1,37 @@
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
 from keras.utils.np_utils import to_categorical
-from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.utils.class_weight import compute_class_weight
 
 def load_dataset():
-    data_folder = "/opt/data_repository/oil_samples/"
-    file_to_open = data_folder + "half-samples.pkl"
+    #data_folder = "/opt/data_repository/oil_samples/"
+    #file_to_open = data_folder + "half-samples.pkl"
 
-    #file_to_open = "laminas-dez.pkl"
+    file_to_open = "laminas-dez.pkl"
     df = pd.read_pickle(file_to_open)
 
     imagens = df.loc[: , "lamina"]
-    labels = df.loc[: , "classificacao"]
+    labels = df.loc[: , "classificacao"] #.tolist()
+    #labels = np.array(df.loc[: , "classificacao"]).tolist()
 
-    encoder = LabelEncoder()
-    labels_encoded = encoder.fit_transform(labels)
 
     # Conversao do dataset em array
     img2array = []
     labels2array = []
 
     for i in range(len(imagens)):
+        # Array das imagens
         imgarr = np.array(imagens[i])
-        img_resize = np.resize(imgarr, (100, 200, 3))  #100, 113, 3
+        img_resize = np.resize(imgarr, (10, 10, 3))  #100, 113, 3
         img2array.append(img_resize)
 
-        labelsarr = np.array(labels_encoded[i])
+        # Array das labels
+        labelsarr = np.array(labels[i])
         labels2array.append(labelsarr)
 
     img_array = np.asarray(img2array)
     labels_array = np.asarray(labels2array)
-    
+
     return img_array, labels_array
 
 '''
@@ -70,6 +69,7 @@ def class_weight_dataset(y_train, y_test):
 
 
 '''
+EXAMPLE
 labels = [
         ([1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] = "Particulas corrosivas"),
         ([0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] = "Fibras"),
