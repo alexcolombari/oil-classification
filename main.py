@@ -3,53 +3,45 @@ import numpy as np
 from models import createModel
 from keras import backend as K
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import LabelEncoder
-from keras.optimizers import Adam
-from imblearn.metrics import classification_report_imbalanced
-from imblearn.over_sampling import RandomOverSampler
-from sklearn.metrics import confusion_matrix
-from keras.utils.np_utils import to_categorical
-from keras.callbacks import ModelCheckpoint
-from sklearn.model_selection import train_test_split
 from dataset import load_dataset
+from keras.optimizers import Adam
+from keras.callbacks import ModelCheckpoint
+from keras.utils.np_utils import to_categorical
+from sklearn.model_selection import train_test_split
 from keras.preprocessing.image import ImageDataGenerator
 from sklearn.utils.class_weight import compute_class_weight
-np.random.seed(42)
 
-# search Under and Over sampling or Class weight
-
-# (400 / 300) x 100 = new height      (100 x 113, 3)
 
 def train(img_array, labels_array):
     # Spliting train and test data
-    X_train, X_test, Y_train, Y_test = train_test_split(img_array, labels_array)
+    X_train, X_test, Y_train, Y_test = train_test_split(img_array, labels_array, random_state = 42)
+    
     print("X_train shape: {}\nY_train shape: {}".format(X_train.shape, Y_train.shape))
     print("X_test shape: {}\nY_test shape: {}".format(X_test.shape, Y_test.shape))
-    
-    exit()
 
     # Normalization
-    #X_train = X_train / 255.0
-    #X_test = X_test / 255.0
+    X_train = X_train / 255
+    X_test = X_test / 255
 
+    '''
+    # Class Weight
     class_weight_list = compute_class_weight('balanced', np.unique(Y_train), Y_train)
     class_weight = dict(zip(np.unique(Y_train), class_weight_list))
     Y_train = to_categorical(Y_train, num_classes = len(np.unique(Y_train)))
-    
+    '''
+
     # Data augmentation
     aug = ImageDataGenerator(rotation_range=25, width_shift_range=0.15,
         height_shift_range=0.15, shear_range=0.2, zoom_range=0.2, horizontal_flip=True, fill_mode="nearest")
     
-    print("X_train shape: {}\nY_train shape: {}".format(X_train.shape, Y_train.shape))
-    print("X_test shape: {}\nY_test shape: {}".format(X_test.shape, Y_test.shape))
-    
     # INPUT SHAPE AND MODEL SETTINGS
-    IMG_DIMS = (100, 200, 3)
+    IMG_DIMS = (10, 10, 3)
 
     trainmodel = createModel(IMG_DIMS)
-    BATCH_SIZE = 32
-    EPOCHS = 10
+    BATCH_SIZE = 5
+    EPOCHS = 50
     trainmodel.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    print(trainmodel.summary())
 
     '''
     # CHECKPOINT
@@ -61,22 +53,43 @@ def train(img_array, labels_array):
     callbacks_list = [checkpoint]
     '''
 
+    class_weight = { 0: 7.6923,
+                     1: 7.6923,
+                     2: 7.6923,
+                     3: 7.6923,
+                     4: 7.6923,
+                     5: 7.6923,
+                     6: 7.6923,
+                     7: 7.6923,
+                     8: 7.6923,
+                     9: 7.6923,
+                    10: 7.6923,
+                    11: 7.6923,
+                    12: 7.6923 }
+    
     # MODEL FIT WITH DATA AUG
     history = trainmodel.fit_generator(
         aug.flow(X_train, Y_train, batch_size=BATCH_SIZE),
         epochs=EPOCHS, verbose=1, steps_per_epoch=len(X_train)//BATCH_SIZE,
-        validation_data=(X_test, Y_test), class_weight=class_weight)
-
+        validation_data=(X_test, Y_test), class_weight = class_weight)
+    
     scores = trainmodel.evaluate(X_test, Y_test)
     print("\nAccuracy: %.2f%%" % (scores[1]*100))
 
-    y_pred = trainmodel.predict_classes(X_test)
-    print("\nY predicted: \n", y_pred)
+    preds = trainmodel.predict(X_test)
+    preds[preds>=0.5] = 1
+    preds[preds<0.5] = 0
 
-    #matrix = confusion_matrix(Y_test, y_pred)
-    #print("\nConfusion Matrix: \n", matrix)
 
-    '''
+    print("\nY predicted 1: {}".format(preds[1]))
+    print("\nY test 1: {}".format(Y_test[1]))       
+    print("\nY predicted 15: {}".format(preds[15]))
+    print("\nY predicted 27: {}".format(preds[27]))
+    print("\nY predicted 55: {}".format(preds[55]))
+    print("\nY predicted 13: {}".format(preds[13]))
+
+
+'''
     # PLOT
     # Accuracy curve
     plt.plot(history.history['acc'])
@@ -95,7 +108,7 @@ def train(img_array, labels_array):
     plt.xlabel('epoch')
     plt.legend(['train', 'val'], loc='upper left')
     plt.show()
-    '''
+'''
 
 dataset, labels = load_dataset()
 train(dataset, labels)
