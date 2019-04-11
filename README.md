@@ -1,5 +1,7 @@
 # Convolutional neural network applied to predictive maintenence of industrial equipment using oil samples.
 
+## Under construction
+
 This is my Computer Science undergraduate thesis (Bachelors dissertation).
 
 In this project, my idea is to implement an artificial intelligence model capable to make predictions and create some
