@@ -1,16 +1,17 @@
 import numpy as np
 import pandas as pd
+np.random.seed(42)
 
 def load_dataset():
     data_folder = "/opt/data_repository/oil_samples/"
-    file_to_open = data_folder + "5000-samples.pkl"
+    #file_to_open = data_folder + "5000-samples.pkl"
+    file_to_open = data_folder + "laminas.pkl"
 
     #file_to_open = "laminas-dez.pkl"
     df = pd.read_pickle(file_to_open)
 
     imagens = df.loc[: , "lamina"]
     labels = df.loc[: , "classificacao"]
-
 
     # CLASS WEIGHT MEAN FOR EACH COLUMN IN "CLASSIFICACAO"
     soma = np.zeros(13)
@@ -19,7 +20,7 @@ def load_dataset():
         
     soma/=len(df)
     class_weight = dict(enumerate(soma))
-    print(class_weight)
+
 
     # DATASET CONVERTION TO ARRAY TYPE
     img2array = []
@@ -28,7 +29,7 @@ def load_dataset():
     for i in range(len(imagens)):
         # IMAGE ARRAY
         imgarr = np.array(imagens[i])
-        img_resize = np.resize(imgarr, (10, 10, 3))  #100, 113, 3
+        img_resize = np.resize(imgarr, (100, 200, 3))  #100, 113, 3
         img2array.append(img_resize)
 
         # LABEL ARRAY
