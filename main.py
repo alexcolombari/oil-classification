@@ -13,7 +13,7 @@ from keras.callbacks import ModelCheckpoint, EarlyStopping, LearningRateSchedule
 np.random.seed(42)
 
 def train(img_array, labels_array, class_weight):
-    # Spliting train and test data
+    # SPLIT TRAIN AND TEST DATA
     train_images, test_images, train_labels, test_labels = train_test_split(img_array, labels_array)
     
     print("X_train shape: {}\nY_train shape: {}".format(train_images.shape, train_labels.shape))
@@ -40,6 +40,7 @@ def train(img_array, labels_array, class_weight):
     BATCH_SIZE = 64
     EPOCHS = 6000
 
+    # LEARNING RATE
     learning_rate = 0.001
     decay_rate = learning_rate / EPOCHS
 
@@ -51,6 +52,7 @@ def train(img_array, labels_array, class_weight):
                 math.floor((1 + epoch) / epochs_drop))
         return lrate
 
+    # MODEL COMPILE
     adam_opt = Adam(lr = learning_rate, beta_1 = 0.9, beta_2 = 0.999, epsilon = 1e-08, decay = decay_rate)
     model.compile(optimizer = adam_opt, loss = 'binary_crossentropy', metrics=['accuracy'])
     print(model.summary())
@@ -83,7 +85,7 @@ def train(img_array, labels_array, class_weight):
     preds[preds>=0.5] = 1
     preds[preds<0.5] = 0
     '''
-
+    # PREDICTION
     Y_pred_probabilities = model.predict(test_images)
     Y_pred = np.round(Y_pred_probabilities)
     Y_pred[Y_pred>=0.5] = 1
