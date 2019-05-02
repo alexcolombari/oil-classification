@@ -9,3 +9,5 @@ This is my Computer Science undergraduate thesis (Bachelors dissertation).
 ![Last dense layer of CNN input with Bias](http://tinypic.com/r/2cf5edg/9)
 
 ![Last dense layer of CNN output](https://imgur.com/a/ATO94Kg)
+
+![Model plot](https://raw.githubusercontent.com/alexcolombari/cnn-oil-classification/tree/master/model_architecture/model.png)
