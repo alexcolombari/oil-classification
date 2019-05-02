@@ -10,4 +10,4 @@ This is my Computer Science undergraduate thesis (Bachelors dissertation).
 
 ![Last dense layer of CNN output](https://imgur.com/a/ATO94Kg)
 
-![Model plot](https://raw.githubusercontent.com/alexcolombari/cnn-oil-classification/tree/master/model_architecture/model.png)
+![Model plot](https://github.com/alexcolombari/cnn-oil-classification/blob/master/model_architecture/model.png)
