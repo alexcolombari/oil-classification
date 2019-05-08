@@ -29,16 +29,32 @@ def createModel(IMG_DIMS):
 
     return model
 
+def model_1(input_img):
+    conv1 = Conv2D(6, (3, 3), activation='relu', padding='same')(input_img)
+    pool1 = MaxPooling2D(pool_size = (2,2))(conv1)
+    drop1 = Dropout(0.3)(pool1)
+
+    conv2 = Conv2D(6, (3, 3), activation='relu', padding='same')(drop1)
+    drop2 = Dropout(0.3)(conv2)
+    
+    model_flatten = Flatten()(drop2)
+    dense1 = Dense(512, activation = 'relu')(model_flatten)
+    drop3 = Dropout(0.2)(dense1)
+    dense2 = Dense(13, activation = 'sigmoid')(drop2)
+
+    return dense2
+
+
 def encoder_model(input_img):
     # ENCODER
-    #input = 100 x 200 x 1 (wide and thin)
+    #input = 100 x 200 x 1
     conv1 = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img) # 100 x 200 x 16
-    pool1 = MaxPooling2D(pool_size=(2, 2))(conv1) # 10 x 200 x 16
+    pool1 = MaxPooling2D(pool_size=(2, 2))(conv1) # 100 x 200 x 16
     
     conv2 = Conv2D(8, (3, 3), activation='relu', padding='same')(pool1) # 50 x 100 x 8
     pool2 = MaxPooling2D(pool_size=(2, 2))(conv2) # 50 x 100 x 8
     
-    conv3 = Conv2D(4, (3, 3), activation='relu', padding='same')(pool2) # 25 x 50 x 4 (small and thick)
+    conv3 = Conv2D(4, (3, 3), activation='relu', padding='same')(pool2) # 25 x 50 x 4
 
     # DECODER
     conv4 = Conv2D(4, (3, 3), activation='relu', padding='same')(conv3) # 25 x 50 x 4
