@@ -34,11 +34,12 @@ def train_encoder(img_array, labels_array, class_weight):
     filepath = directory + "auto_encoder_model.hdf5"
     encoder = encoder_model(input_img)
     autoencoder = Model(input_img, encoder)
-    BATCH_SIZE = 256
+    BATCH_SIZE = 128
     EPOCHS = 8000
 
     # MODEL COMPILE
     autoencoder.compile(optimizer = 'adam', loss = 'mae')
+    print(autoencoder.summary())
 
     # CHECKPOINT
     checkpoint = ModelCheckpoint(filepath, monitor = 'val_loss', verbose = 1, save_best_only = True,
@@ -57,6 +58,18 @@ def train_encoder(img_array, labels_array, class_weight):
     history = autoencoder.fit(train_X, train_ground, epochs=5, batch_size=BATCH_SIZE, verbose=1,
         callbacks = callbacks_list, validation_data=(valid_X, valid_ground))
     '''
+
+    # Loss curve
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('Model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'val'], loc='upper left')
+    plt.savefig('encoder_loss_curve.png')
+
+
+    # val loss = 0.08128
 
 if __name__ == "__main__":
     dataset, labels, class_weight = load_dataset()
