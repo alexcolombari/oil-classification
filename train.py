@@ -49,9 +49,7 @@ def train_model():
     labels_array = np.asarray(labels2array)    
     
     
-    
-    
-   
+
     # SPLIT
     train_images, test_images, train_labels, test_labels = train_test_split(img_array, labels_array)
 
@@ -77,7 +75,7 @@ def train_model():
     x_train_predict = encoder.predict(train_images)
     x_train_predict = np.resize(x_train_predict, (len(x_train_predict), 25, 50, 3))    
     x_test_predict = encoder.predict(test_images)
-    x_test_predict = np.resize(x_test_predict, (len(x_train_predict), 25, 50, 3))
+    x_test_predict = np.resize(x_test_predict, (len(x_test_predict), 25, 50, 3))
 
     final_model = model_1(input_img)
     output_model = Model(input_img, final_model)  
@@ -91,7 +89,6 @@ def train_model():
         mode='min')
     early = EarlyStopping(monitor='val_loss', min_delta = 0, patience = 950, verbose = 1,
         mode = 'min', restore_best_weights = True)
-    #lrate = LearningRateScheduler(step_decay)
     #tensor_board = TensorBoard(log_dir = './logs', histogram_freq = 2, batch_size = BATCH_SIZE,
         #write_graph = False, write_images = False, embeddings_layer_names = None, update_freq = 'epoch')    
     callbacks_list = [checkpoint]
@@ -105,10 +102,10 @@ def train_model():
 
     output_model = load_model(filepath)
 
-    scores = output_model.evaluate(test_images, test_labels)
+    scores = output_model.evaluate(x_test_predict, test_labels)
     print("\nAccuracy: %.2f%%" % (scores[1]*100))
 
-    predict = output_model.predict(test_images)
+    predict = output_model.predict(x_test_predict)
     predict[predict>=0.5] = 1
     predict[predict<0.5] = 0
 
