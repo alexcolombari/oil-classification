@@ -85,8 +85,8 @@ def train_model():
 
 
     # CHECKPOINT
-    checkpoint = ModelCheckpoint(filepath, monitor = 'val_loss', verbose = 1, save_best_only = True,
-        mode='min')
+    checkpoint = ModelCheckpoint(filepath, monitor = 'accuracy', verbose = 1, save_best_only = True,
+        mode='max')
     early = EarlyStopping(monitor='val_loss', min_delta = 0, patience = 950, verbose = 1,
         mode = 'min', restore_best_weights = True)
     #tensor_board = TensorBoard(log_dir = './logs', histogram_freq = 2, batch_size = BATCH_SIZE,
