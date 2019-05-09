@@ -1,4 +1,5 @@
 import numpy as np
+from PIL import Image
 from models import encoder_model
 from keras.layers import Input
 import matplotlib.pyplot as plt
@@ -33,13 +34,16 @@ def train_encoder(img_array, labels_array, class_weight):
     directory = "model-save/"
     filepath = directory + "auto_encoder_model.hdf5"
     encoder = encoder_model(input_img)
+    
     autoencoder = Model(input_img, encoder)
+    #autoencoder = load_model(filepath)
     BATCH_SIZE = 128
-    EPOCHS = 8000
+    EPOCHS = 700
 
     # MODEL COMPILE
-    autoencoder.compile(optimizer = 'adam', loss = 'mae')
+    autoencoder.compile(optimizer = 'adam', loss = 'mse')
     print(autoencoder.summary())
+    plot_model(autoencoder, to_file='model_encoder.png', show_shapes = True)
 
     # CHECKPOINT
     checkpoint = ModelCheckpoint(filepath, monitor = 'val_loss', verbose = 1, save_best_only = True,
@@ -48,21 +52,18 @@ def train_encoder(img_array, labels_array, class_weight):
         mode = 'min', restore_best_weights = True)
     callbacks_list = [checkpoint, early]
 
+
     # ENCODER FIT WITH DATA AUG
     history = autoencoder.fit_generator(
-        aug.flow(train_X, train_ground, batch_size=BATCH_SIZE),
-        epochs=EPOCHS, verbose=1, validation_data=(valid_X, valid_ground),
+        aug.flow(train_X, train_X, batch_size=BATCH_SIZE),
+        epochs=EPOCHS, verbose=1, validation_data=(valid_X, valid_ground), #valid_X, valid_ground
         callbacks = callbacks_list)
-    
-    '''
-    history = autoencoder.fit(train_X, train_ground, epochs=5, batch_size=BATCH_SIZE, verbose=1,
-        callbacks = callbacks_list, validation_data=(valid_X, valid_ground))
-    '''
+
 
     # Loss curve
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'])
-    plt.title('Model loss')
+    plt.title('Autoencoder model loss')
     plt.ylabel('loss')
     plt.xlabel('epoch')
     plt.legend(['train', 'val'], loc='upper left')
@@ -70,6 +71,7 @@ def train_encoder(img_array, labels_array, class_weight):
 
 
     # val loss = 0.08128
+    # val loss = 0.01527
 
 if __name__ == "__main__":
     dataset, labels, class_weight = load_dataset()
