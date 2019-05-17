@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from PIL import Image
+from keras import backend as K
 import matplotlib.pyplot as plt
 from dataset import load_dataset
 from keras.utils import plot_model
@@ -17,24 +18,24 @@ def train_autoencoder():
     file_to_open = data_folder + "laminas.pkl"
     
     df = pd.read_pickle(file_to_open)
-    imagens = df.loc[0:1000 , "lamina"]
+    imagens = df.loc[0:3000 , "lamina"]
 
     input_img = Input(shape=(300, 396, 1))
 
-    x = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
-    x = MaxPooling2D((2, 2), padding='same')(x)
-    x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
-    x = MaxPooling2D((2, 2), padding='same')(x)
-    x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
-    encoded = MaxPooling2D((2, 2), padding='same')(x)    
+    x = Conv2D(12, (3, 3), activation=K.relu, padding='same')(input_img) # 300 x 396
+    x = MaxPooling2D((2, 2), padding='same')(x) # 300 x 396
+    x = Conv2D(6, (3, 3), activation=K.relu,, padding='same')(x) # 150 x 198
+    x = MaxPooling2D((2, 2), padding='same')(x) # 150 x 198
+    x = Conv2D(6, (3, 3), activation=K.relu,, padding='same')(x) # 75 x 99
+    encoded = MaxPooling2D((2, 2), padding='same')(x) # 37.5 x 49.5   
 
-    x = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
-    x = UpSampling2D((2, 2))(x)
-    x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
-    x = UpSampling2D((2, 2))(x)
-    x = Conv2D(16, (3, 3), activation='relu')(x)
-    x = UpSampling2D((2, 2))(x)
-    decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(x)
+    x = Conv2D(6, (3, 3), activation=K.relu,, padding='same')(encoded) # 37.5 x 49.5
+    x = UpSampling2D((2, 2))(x) # 37.5 x 49.5
+    x = Conv2D(6, (3, 3), activation=K.relu,, padding='same')(x) # 75 x 99
+    x = UpSampling2D((2, 2))(x) # 75 x 99
+    x = Conv2D(12, (3, 3), activation=K.relu,)(x) # 150 x 198
+    x = UpSampling2D((2, 2))(x) # 150 x 198
+    decoded = Conv2D(1, (3, 3), activation='relu', padding='same')(x) # 300 x 396
 
 
     img2array = []
@@ -45,45 +46,42 @@ def train_autoencoder():
 
     x_train, x_test = train_test_split(img_array, test_size = 0.33)
 
-    x_train = x_train.astype('float') / 255.
-    x_test = x_test.astype('float') / 255.
+    x_train = x_train.astype('uint8') / 255.
+    x_test = x_test.astype('uint8') / 255.
     x_train = np.resize(x_train, (len(x_train), 300, 396, 1))
     x_test = np.resize(x_test, (len(x_test), 300, 396, 1))
 
     autoencoder = Model(input_img, decoded)
     autoencoder.compile(optimizer='adadelta', loss='mse')
-    plot_model(autoencoder, to_file='model_encoder.png', show_shapes = True)
+    #plot_model(autoencoder, to_file='model_encoder.png', show_shapes = True)
 
     directory = "model-save/"
-    filepath = directory + "auto_encoder_model.hdf5"
+    filepath = directory + "2_auto_encoder_model.hdf5"
 
     # CHECKPOINT
     checkpoint = ModelCheckpoint(filepath, monitor = 'val_loss', verbose = 1, save_best_only = True,
         mode='min')
-    early = EarlyStopping(monitor='val_loss', min_delta = 0, patience = 100, verbose = 1,
+    early = EarlyStopping(monitor='val_loss', min_delta = 0, patience = 1300, verbose = 1,
         mode = 'min', restore_best_weights = True)
     callbacks_list = [checkpoint, early]
     
 
-    autoencoder.fit(x_train, x_train,
-                epochs=5,
-                batch_size=64,
+    history = autoencoder.fit(x_train, x_train,
+                epochs=1000,
+                batch_size=128,
                 shuffle=True,
                 validation_data=(x_test, x_test),
                 callbacks = callbacks_list)
 
-    autoencoder = load_model(filepath)
-
-    decoded_imgs = autoencoder.predict(x_test)
-    print(decoded_imgs)
-    exit()
-    x_test = np.resize(x_test, (300, 396, 1))
-    decoded_imgs = np.resize(decoded_imgs, (300, 396, 1))
-    decoded_imgs = decoded_imgs * 255.0
-
-    imgs = Image.fromarray(decoded_imgs[1], 'RGB')
-    imgs.save('reconstructed.png')
-
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('Autoencoder Model Loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(['train', 'val'], loc='upper left')
+    plt.savefig('2_encoder_loss_curve.png')
 
 if __name__ == "__main__":
     train_autoencoder()
+
+    # val loss (adadelta / mse) = 0.0127
