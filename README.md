@@ -2,7 +2,7 @@
 
 #### Under construction
 
-This is my Computer Science undergraduate thesis (Bachelors dissertation).
+Developed using Deep Learning for image classification. This is my final undergraduate project to get Computer Science Bachelor's title.
 
 #### Testing upload images
 
