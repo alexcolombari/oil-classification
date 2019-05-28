@@ -2,7 +2,7 @@
 
 #### Under construction
 
-Developed using Deep Learning for image classification. This is my final undergraduate project to get Computer Science Bachelor's title.
+Developed using Deep Learning image classification applied to microscopic oil samples. This is my final undergraduate project to get Computer Science Bachelor's title.
 
 #### Testing upload images
 
