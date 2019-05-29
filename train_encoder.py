@@ -95,3 +95,5 @@ plt.savefig('encoder_loss_curve.png')
 
 # val loss (adadelta / mse) = 0.0127
 # val loss (adam / mse) = 0.00118
+# ----------------------------------
+# val loss (adam / mse) = 0.03445 // accuracy = 0.9994 (1000 epochs)
