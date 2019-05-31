@@ -12,9 +12,10 @@ np.random.seed(7)
 
 def train_model():
     data_folder = "/opt/data_repository/oil_samples/"
-    file_to_open = data_folder + "5000-samples.pkl"
+    file_to_open = data_folder + "laminas.pkl"
 
     df = pd.read_pickle(file_to_open)
+    df = df.loc[:6299 , :]
 
     imagens = df.loc[: , "lamina"]
     labels = df.loc[: , "classificacao"]
@@ -23,12 +24,10 @@ def train_model():
     # CLASS WEIGHT MEAN FOR EACH COLUMN IN "CLASSIFICACAO"
     soma = np.zeros(13)
     for idx,row in df.iterrows():
-        soma+=np.array(row['classificacao'])
+        soma += np.array(row['classificacao'])
         
     soma/=len(df)
     class_weight = dict(enumerate(soma))
-
-
 
     
     # DATASET CONVERTION TO ARRAY TYPE
@@ -38,8 +37,8 @@ def train_model():
     for i in range(len(imagens)):
         # IMAGE ARRAY
         imgarr = np.array(imagens[i])
-        img_resize = np.resize(imgarr, (100, 200, 1))
-        img2array.append(img_resize)
+        img2arr = np.resize(imgarr, (300, 400, 3))
+        img2array.append(img2arr)
 
         # LABEL ARRAY
         labelsarr = np.array(labels[i])
@@ -48,34 +47,37 @@ def train_model():
     img_array = np.asarray(img2array)
     labels_array = np.asarray(labels2array)    
     
-    
 
     # SPLIT
     train_images, test_images, train_labels, test_labels = train_test_split(img_array, labels_array)
 
-    # NORMALIZATION
-    train_images = train_images / 255.0
-    test_images = test_images / 255.0   
 
     # MODEL LOAD
     model_directory = "model-save/"
     model_path = model_directory + "auto_encoder_model.hdf5"
     autoencoder_model = load_model(model_path)
 
-    # INPUT SHAPE AND MODEL SETTINGS
-    x, y = 25, 50
-    inChannel = 3
-    input_img = Input(shape = (x, y, inChannel))
-    BATCH_SIZE = 256
-    EPOCHS = 1300
-    
-    # GET AUTOENCODED MODEL LAYERS
+    # GET AUTOENCODED MODEL LAYER
     encoder = Model(autoencoder_model.input, autoencoder_model.layers[-6].output)
 
     x_train_predict = encoder.predict(train_images)
-    x_train_predict = np.resize(x_train_predict, (len(x_train_predict), 25, 50, 3))    
+    x_train_predict = x_train_predict.astype('uint8') / 355
+    #x_train_predict = np.resize(x_train_predict, (len(x_train_predict), 300, 400, 3))
+
     x_test_predict = encoder.predict(test_images)
-    x_test_predict = np.resize(x_test_predict, (len(x_test_predict), 25, 50, 3))
+    x_test_predict = x_test_predict.astype('uint8') / 355
+    #x_test_predict = np.resize(x_test_predict, (len(x_test_predict), 300, 400, 3))
+
+
+
+    # INPUT SHAPE AND MODEL SETTINGS
+    x, y = 75, 100
+    inChannel = 8
+    input_img = Input(shape = (x, y, inChannel))
+    BATCH_SIZE = 512
+    EPOCHS = 300
+    patience = (EPOCHS * 20) / 100
+    
 
     final_model = model_1(input_img)
     output_model = Model(input_img, final_model)  
@@ -85,20 +87,24 @@ def train_model():
 
 
     # CHECKPOINT
-    checkpoint = ModelCheckpoint(filepath, monitor = 'accuracy', verbose = 1, save_best_only = True,
+    checkpoint = ModelCheckpoint(filepath, monitor = 'val_acc', verbose = 1, save_best_only = True,
         mode='max')
-    early = EarlyStopping(monitor='val_loss', min_delta = 0, patience = 950, verbose = 1,
-        mode = 'min', restore_best_weights = True)
+    early = EarlyStopping(monitor='val_acc', min_delta = 0, patience = patience, verbose = 1,
+        mode = 'max', restore_best_weights = True)
     #tensor_board = TensorBoard(log_dir = './logs', histogram_freq = 2, batch_size = BATCH_SIZE,
         #write_graph = False, write_images = False, embeddings_layer_names = None, update_freq = 'epoch')    
-    callbacks_list = [checkpoint]
+    callbacks_list = [checkpoint, early]
 
-    output_model.compile(optimizer = "adagrad", loss = "binary_crossentropy", metrics = ['accuracy'])
+    output_model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
     
-    test_images = np.resize(test_images, (len(test_images), 25, 50, 3))
 
-    output_model.fit(x_train_predict, train_labels, batch_size = BATCH_SIZE, epochs = EPOCHS, verbose = 1,
-        validation_data = (test_images, test_labels), class_weight = class_weight, callbacks = callbacks_list)
+    history = output_model.fit(x_train_predict, train_labels,
+        batch_size = BATCH_SIZE,
+        epochs = EPOCHS, verbose = 1,
+        validation_data = (x_test_predict, test_labels),
+        class_weight = class_weight,
+        shuffle = False,
+        callbacks = callbacks_list)
 
     output_model = load_model(filepath)
 
@@ -109,8 +115,17 @@ def train_model():
     predict[predict>=0.5] = 1
     predict[predict<0.5] = 0
 
-    print("Predict  25: {}".format(predict[25]))
-    print("Original 25: {}".format(test_labels[25]))    
+    print("Predict  35: {}".format(predict[35]))
+    print("Original 35: {}".format(test_labels[35]))  
+
+
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('Train Model Loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(['train', 'val'], loc='upper left')
+    plt.savefig('train_curve.png')  
 
 
 if __name__ == "__main__":
