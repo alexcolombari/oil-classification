@@ -15,26 +15,16 @@ def test_model():
     # LOAD IMAGE
     imagem = Image.open('test_image.jpg')
     imagem = np.array(imagem)
-    imagem = np.resize(imagem, (1, 100, 200, 1))
-
+    imagem = np.resize(imagem, (1, 75, 100, 8))
     imagem = imagem / 255.0
+    # DATASET CONVERTION TO ARRAY TYPE
+    img2array = []
 
-    
-    # MODEL LOAD
-    model_directory = "model-save/"
-    model_path = model_directory + "auto_encoder_model.hdf5"
-    autoencoder_model = load_model(model_path)
-
-    # INPUT SHAPE AND MODEL SETTINGS
-    x, y = 25, 50
-    inChannel = 3
-    input_img = Input(shape = (x, y, inChannel))
-    
-    # GET AUTOENCODED MODEL LAYERS
-    encoder = Model(autoencoder_model.input, autoencoder_model.layers[-6].output)
-
-    x_train_predict = encoder.predict(imagem)
-    x_train_predict = np.resize(x_train_predict, (len(x_train_predict), 25, 50, 3)) 
+    for i in range(len(imagem)):
+        # IMAGE ARRAY
+        imgarr = np.array(imagem[i])
+        #img2arr = np.resize(imgarr, (300, 400, 3))
+        img2array.append(imgarr)
 
 
     # LOAD MODEL
@@ -43,7 +33,7 @@ def test_model():
     model = load_model(model_name)
 
     # MODEL PREDICT
-    pred = model.predict(x_train_predict)
+    pred = model.predict(imagem)
     pred[pred>=0.5] = 1
     pred[pred<0.5] = 0
 
@@ -51,8 +41,15 @@ def test_model():
     vetor[vetor>=0.5] = 1
     vetor[vetor<0.5] = 0
 
-    print("Predict Label:  {}".format(pred))
-    print("Original Label: {}".format(vetor))
+    print("\nPredict Label {}:  {}".format(amostra, pred))
+    print("Original Label {}: {}".format(amostra, vetor))
+
+    erro = np.mean(pred != vetor)
+    
+    if (pred == vetor).all():
+        print("[INFO] Acertou 100%")
+    else:
+        print("[INFO] Erro de %.2f%%" % (erro*100))
 
     return pred, vetor
 
