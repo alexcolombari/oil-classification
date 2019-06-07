@@ -92,7 +92,6 @@ plt.xlabel('Epoch')
 plt.legend(['train', 'val'], loc='upper left')
 plt.savefig('encoder_loss_curve.png')
 
-
 # val loss (adadelta / mse) = 0.0127
 # val loss (adam / mse) = 0.00118
 # ----------------------------------
