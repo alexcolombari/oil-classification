@@ -55,6 +55,6 @@ def model_2(input_img):
     x = Dropout(0.3)(x)
     x = Dense(256, activation = 'relu')(x)
     x = Dropout(0.3)(x)
-    x = Dense(13, activation = 'sigmoid')(x)
+    output = Dense(13, activation = 'sigmoid')(x)
 
-    return x
+    return output
