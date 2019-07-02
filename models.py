@@ -4,7 +4,7 @@ from keras import regularizers, initializers
 from keras.layers import Dense, Conv2D, MaxPooling2D, Dropout, Flatten, UpSampling2D, BatchNormalization
 np.random.seed(7)
 
-def model_1(input_img):
+def cnn(input_img):
     input_layer = Conv2D(2, (3, 3), activation = 'relu', padding = 'same',
                         bias_initializer=initializers.RandomNormal(0.1),
                         kernel_constraint=max_norm(2.))(input_img)
