@@ -32,7 +32,7 @@ def train_model():
     # -------------------- DATA MANIPULATION --------------------
     data_folder = "/opt/data_repository/oil_samples/"
     file_to_open = data_folder + "laminas.pkl"
-    valor = 6499    # 7799
+    valor = 6899    # 7799
     df = pd.read_pickle(file_to_open)
     df = df.loc[:valor , :]
     imagens = df.loc[: , "lamina"]
@@ -52,7 +52,6 @@ def train_model():
 
     train_length = len(trainData)
     test_length = len(testData)
-
 
     trainData = np.asarray(trainData)
     testData = np.asarray(testData)
@@ -140,11 +139,11 @@ def train_model():
     inChannel = trainDataArray.shape[3]
     input_img = Input(shape = (x, y, inChannel))
     BATCH_SIZE = 64
-    EPOCHS = 100
+    EPOCHS = 10000
     patience = (EPOCHS * 10) / 100
 
     # DEFINE OUTPUT MODEL
-    final_model = model_1(input_img)
+    final_model = cnn(input_img)
     output_model = Model(input_img, final_model)
     print("\n[INFO] Final model summary")
     print(output_model.summary())
@@ -155,7 +154,7 @@ def train_model():
     # CHECKPOINT
     checkpoint = ModelCheckpoint(filepath, monitor = 'val_acc', verbose = 1, save_best_only = True,
         mode='max')
-    early = EarlyStopping(monitor='val_acc', min_delta = 0, patience = 230, verbose = 1,
+    early = EarlyStopping(monitor='val_acc', min_delta = 0, patience = patience, verbose = 1,
         mode = 'max', restore_best_weights = True)
     #tensor_board = TensorBoard(log_dir = './logs', histogram_freq = 2, batch_size = BATCH_SIZE,
         #write_graph = False, write_images = False, embeddings_layer_names = None, update_freq = 'epoch')    
@@ -213,13 +212,20 @@ def train_model():
     # Train loss curve plot
     plt.plot(history.history['acc'])
     plt.plot(history.history['val_acc'])
+    plt.title('Model Accuracy Progress')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(['train_acc', 'val_acc'], loc='lower right')
+    plt.savefig('accuracy_curve.png') 
+
+    plt.clf()
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'])
-    plt.title('Train Model Progress')
-    plt.ylabel('Values')
+    plt.title('Model Loss Progress')
+    plt.ylabel('Loss')
     plt.xlabel('Epoch')
-    plt.legend(['train_acc', 'val_acc', 'train_loss', 'val_loss'], loc='upper left')
-    plt.savefig('train_curve.png')  
+    plt.legend(['train_loss', 'val_loss'], loc='upper left')
+    plt.savefig('loss_curve.png')  
 
 if __name__ == "__main__":
     train_model()
@@ -229,4 +235,9 @@ if __name__ == "__main__":
 Trained with 101426 epochs
     Acc: 90.40%
     Val loss: 0.2552
+    
+----- name: 3_trained_model -----
+Trained with 1074 epochs
+    Acc: 89.22%
+    Val loss: 0.2539
 '''
