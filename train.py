@@ -18,11 +18,11 @@ np.random.seed(seed)
 def train_model():
     # -------------------- CLASS WEIGHT --------------------
     def class_weight():
-        soma = np.zeros(13)
+        weights = np.zeros(13)
         for idx,row in df.iterrows():
-            soma += np.array(row['classificacao'])
-        soma /= len(df)
-        class_weight = dict(enumerate(soma))
+            weights += np.array(row['classificacao'])
+        weights /= len(df)
+        class_weight = dict(enumerate(weights))
         return class_weight
 
     # -------------------- GET LAYER WEIGHT --------------------
