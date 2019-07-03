@@ -32,9 +32,9 @@ def train_model():
     # -------------------- DATA MANIPULATION --------------------
     data_folder = "/opt/data_repository/oil_samples/"
     file_to_open = data_folder + "laminas.pkl"
-    valor = 6899    # 7799
+    samples = 6899    # 7799
     df = pd.read_pickle(file_to_open)
-    df = df.loc[:valor , :]
+    df = df.loc[:samples , :]
     imagens = df.loc[: , "lamina"]
     labels = df.loc[: , "classificacao"]
 
@@ -107,7 +107,7 @@ def train_model():
 
     
     # -------------------- TRAINING --------------------
-
+    # Autoencoder
     '''
     # AUTOENCODER MODEL LOAD
     autoencoder_directory = "model-save/"
@@ -140,7 +140,7 @@ def train_model():
     input_img = Input(shape = (x, y, inChannel))
     BATCH_SIZE = 64
     EPOCHS = 10000
-    patience = (EPOCHS * 10) / 100
+    patience = (EPOCHS * 10) / 100      # 10%
 
     # DEFINE OUTPUT MODEL
     final_model = cnn(input_img)
@@ -168,13 +168,14 @@ def train_model():
     adam = Adam(lr = learning_rate, beta_1 = 0.1, beta_2 = 0.999, epsilon = 1e-05, decay = 0.0)
 
     output_model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
-
+    
+    '''
     # DATA AUGMENTATION
     aug = ImageDataGenerator(rotation_range= 60, width_shift_range=0.37, 
             height_shift_range=0.50, shear_range=0.56, zoom_range=0.50,
                 horizontal_flip=True, fill_mode="nearest")
     
-    '''
+    
     history = output_model.fit_generator(
         aug.flow(x_train_predict, trainLabels,
         batch_size = BATCH_SIZE),
@@ -184,6 +185,7 @@ def train_model():
         callbacks = callbacks_list)
         #class_weight = class_weight(),
     '''
+    
     # Model Fit
     history = output_model.fit(trainDataArray, trainLabelArray,
         batch_size = BATCH_SIZE,
