@@ -32,23 +32,34 @@ def train_model():
     # -------------------- DATA MANIPULATION --------------------
     data_folder = "/opt/data_repository/oil_samples/"
     file_to_open = data_folder + "laminas.pkl"
-    samples = 6899    # 7799
+    samples = 6499    # 7799
     df = pd.read_pickle(file_to_open)
-    df = df.loc[:samples , :]
-    imagens = df.loc[: , "lamina"]
-    labels = df.loc[: , "classificacao"]
+    train = df.loc[:samples , :]
+    images = train.loc[: , "lamina"]
+    labels = train.loc[: , "classificacao"]
+
+    '''test = df.loc[7499:8799 , :]
+    images_test = test.loc[: , "lamina"]
+    labels_test = test.loc[: , "classificacao"]'''
 
     # -------------------- CROSS VALIDATION --------------------
-    X = imagens
+    
+    X = images
     Y = labels
     k_folds = 10
-    kfold = KFold(n_splits = k_folds, shuffle = False, random_state = None)
-    kfold.get_n_splits(imagens)
-    for train_index, test_index, in kfold.split(X):
+    kfold = KFold(n_splits = k_folds, shuffle = True, random_state = seed)
+    kfold.get_n_splits(images)
+    for train_index, test_index in kfold.split(X):
         trainData = X[train_index]
         testData = X[test_index]
         trainLabels = Y[train_index]
         testLabels = Y[test_index]
+    
+
+    #trainData = images
+    #trainLabels = labels
+    #testData = images_test
+    #testLabels = labels_test
 
     train_length = len(trainData)
     test_length = len(testData)
@@ -58,7 +69,7 @@ def train_model():
     trainLabels = np.asarray(trainLabels)
     testLabels = np.asarray(testLabels)
 
-    print("\n[INFO] Cross validation successful!")
+    #print("\n[INFO] Cross validation successful!")
     
     time.sleep(3)
 
@@ -143,25 +154,33 @@ def train_model():
     patience = (EPOCHS * 10) / 100      # 10%
 
     # DEFINE OUTPUT MODEL
-    final_model = cnn(input_img)
+    final_model = cnn2(input_img)
     output_model = Model(input_img, final_model)
-    print("\n[INFO] Final model summary")
-    print(output_model.summary())
     time.sleep(4)
     directory = "model-save/"
     filepath = directory + "3_trained_model.hdf5"
+    #output_model = load_model(filepath)
+    print("\n[INFO] Final model summary")
+    print(output_model.summary())
 
     # CHECKPOINT
     checkpoint = ModelCheckpoint(filepath, monitor = 'val_acc', verbose = 1, save_best_only = True,
         mode='max')
     early = EarlyStopping(monitor='val_acc', min_delta = 0, patience = patience, verbose = 1,
         mode = 'max', restore_best_weights = True)
-    #tensor_board = TensorBoard(log_dir = './logs', histogram_freq = 2, batch_size = BATCH_SIZE,
-        #write_graph = False, write_images = False, embeddings_layer_names = None, update_freq = 'epoch')    
     callbacks_list = [checkpoint, early]
 
+    # DATA AUGMENTATION
+    aug = ImageDataGenerator(rotation_range=20,
+            zoom_range=0.15,
+            width_shift_range=0.2,
+            height_shift_range=0.2,
+            shear_range=0.15,
+            horizontal_flip=True,
+            fill_mode="nearest")
+
     # SETTINGS
-    learning_rate = 1e-5
+    learning_rate = 1e-1
     decay_rate = learning_rate / EPOCHS
     momentum = 0.7
     sgd = SGD(lr = learning_rate, momentum = momentum, decay = decay_rate, nesterov = False)
@@ -169,30 +188,26 @@ def train_model():
 
     output_model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
     
+    class_weight = class_weight()
+    
     '''
-    # DATA AUGMENTATION
-    aug = ImageDataGenerator(rotation_range= 60, width_shift_range=0.37, 
-            height_shift_range=0.50, shear_range=0.56, zoom_range=0.50,
-                horizontal_flip=True, fill_mode="nearest")
-    
-    
     history = output_model.fit_generator(
-        aug.flow(x_train_predict, trainLabels,
+        aug.flow(trainDataArray, trainLabelArray,
         batch_size = BATCH_SIZE),
         epochs = EPOCHS, verbose = 1,
-        validation_data = (x_test_predict, testLabels),
-        shuffle = False,
-        callbacks = callbacks_list)
-        #class_weight = class_weight(),
+        validation_data = (testDataArray, testLabelArray),
+        steps_per_epoch = len(trainDataArray) // BATCH_SIZE,
+        shuffle = True,
+        callbacks = callbacks_list,
+        class_weight = class_weight)
     '''
-    
     # Model Fit
     history = output_model.fit(trainDataArray, trainLabelArray,
         batch_size = BATCH_SIZE,
         epochs = EPOCHS, verbose = 1,
         validation_data = (testDataArray, testLabelArray),
-        class_weight = class_weight(),
-        shuffle = False,
+        class_weight = class_weight,
+        shuffle = True,
         callbacks = callbacks_list)
     
     
@@ -242,4 +257,11 @@ Trained with 101426 epochs
 Trained with 1074 epochs
     Acc: 89.22%
     Val loss: 0.2539
+
+----- name: 3_trained_model (12/07) -----
+Trained with 2024 epochs
+    Acc: 88.49%
+    Val loss: 0.2742
 '''
+    #tensor_board = TensorBoard(log_dir = './logs', histogram_freq = 2, batch_size = BATCH_SIZE,
+        #write_graph = False, write_images = False, embeddings_layer_names = None, update_freq = 'epoch')    
