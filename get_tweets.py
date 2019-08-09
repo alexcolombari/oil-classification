@@ -1,3 +1,5 @@
+# https://medium.com/@wilamelima/mining-twitter-for-sentiment-analysis-using-python-a74679b85546
+
 import sys
 import tweepy
 from textblob import TextBlob
@@ -15,7 +17,7 @@ def connect_twitter_api():
     api = tweepy.API(auth)
 
     return api
-
+'''
 def buildTestSet(search_keyword, COUNT):
     api = connect_twitter_api()
     user = api.get_user()
@@ -28,23 +30,36 @@ def buildTestSet(search_keyword, COUNT):
                 print("\n", user + tweet.text)
                 #analysis = TextBlob(tweet.text)
                 print(analysis.sentiment)
-            '''
-            if analysis.sentiment[0] > 0:
-                print("Positive")
-            elif analysis.sentiment[0] < 0:
-                print('Negative')
-            else:
-                print('Neutral')
-            '''
+           
+            #if analysis.sentiment[0] > 0:
+                #print("Positive")
+            #elif analysis.sentiment[0] < 0:
+                #print('Negative')
+            #else:
+                #print('Neutral')
+            
     except:
         print('Unfortunately, something went wrong...')
         return None
+'''
+def get_save_tweets(filepath, api, query, max_tweets = COUNT, lang='pt'):
+    tweetCount = 0
+    with open(filepath, 'w') as f:
+        for tweet in tweepy.Cursor(api.search, q=query, lang=lang).items(max_tweets):
+            f.write(jsonpickle.encode(tweet._json, unpicklable=False) + '\n')
+            tweetCount += 1
+
+        print('Downloaded {0} tweets'.format(tweetCount))
+
+query = '#cerveja'
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
         print('[INFO] Uso: python get_tweets.py palavra-chave quantidade')
         sys.exit(1)
 
-    search_term = str(sys.argv[1])
-    COUNT = int(sys.argv[2])
-    testDataSet = buildTestSet(search_term, COUNT)
+    #search_term = str(sys.argv[1])
+    COUNT = int(sys.argv[1])
+    #testDataSet = buildTestSet(search_term, COUNT)
+    api = connect_twitter_api()
+    get_save_tweets('tweets.json', api, query, COUNT)
