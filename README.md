@@ -14,12 +14,10 @@ Developed using Deep Learning for image classification applied to microscopic oi
   Scikit-Learn
   TensorFlow
   ```
-  ```
-  python oil_class.py EPOCHS DEBUG
-  ```
-  
   Parameters:
   ```
+  python oil_class.py EPOCHS DEBUG
+  
   EPOCHS -> Number of epochs to train model
   DEBUG:
     1 -> Train Model
