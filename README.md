@@ -10,16 +10,12 @@ Developed using Deep Learning for image classification applied to microscopic oi
   ```
   
   Parameters:
-  
+  ```
   EPOCHS -> Number of epochs to train model
-  
   DEBUG:
-    
     1 -> Train Model
-    
     2 -> Test Model
-
-
+  ```
 #### Testing upload images
 
 #### Last CNN layer input with bias
