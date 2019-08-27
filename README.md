@@ -11,7 +11,7 @@ Developed using Deep Learning for image classification applied to microscopic oi
    [Keras](https://keras.io/)<br/>
    [Numpy](https://www.numpy.org/)<br/>
    [Pandas](https://pandas.pydata.org/)<br/>
-   [PyCM](https://github.com/sepandhaghighi/pycm)
+   [PyCM](https://github.com/sepandhaghighi/pycm)<br/>
    [Scikit-Learn](https://scikit-learn.org/stable/)<br/>
    [TensorFlow](https://www.tensorflow.org/)
   
