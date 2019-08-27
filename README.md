@@ -7,13 +7,13 @@ Developed using Deep Learning for image classification applied to microscopic oi
 ### Using
 
 ##### Requirements
-  ```
+  
   [Numpy](https://www.numpy.org/)
   [Keras](https://keras.io/)
   [Pandas](https://pandas.pydata.org/)
   [Scikit-Learn](https://scikit-learn.org/stable/)
   [TensorFlow](https://www.tensorflow.org/)
-  ```
+
   Parameters:
   ```
   python oil_class.py EPOCHS DEBUG
