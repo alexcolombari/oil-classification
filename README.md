@@ -4,7 +4,16 @@
 
 Developed using Deep Learning for image classification applied to microscopic oil samples. This is my final undergraduate project to get Computer Science Bachelor's title.
 
-#### Using
+### Using
+
+##### Requirements
+  ```
+  NumPy
+  Keras
+  Pandas
+  Scikit-Learn
+  TensorFlow
+  ```
   ```
   python oil_class.py EPOCHS DEBUG
   ```
