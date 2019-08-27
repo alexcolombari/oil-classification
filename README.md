@@ -8,7 +8,7 @@ Developed using Deep Learning for image classification applied to microscopic oi
 
 ##### Requirements
   
-  [Numpy](https://www.numpy.org/)
+    [Numpy](https://www.numpy.org/)
   
   [Keras](https://keras.io/)
   
