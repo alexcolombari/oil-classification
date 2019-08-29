@@ -11,16 +11,16 @@ from imblearn.over_sampling import SMOTE
 from sklearn.metrics import classification_report
 from sklearn.model_selection import KFold, train_test_split
 
-from models import *
 import tensorflow as tf
-from keras import metrics
-from keras.layers import Input
 from keras import backend as K
 from keras.utils import plot_model
-from keras.models import load_model, Model
+from keras.constraints import max_norm
+from keras import metrics, regularizers, initializers
+from keras.models import load_model, Model, Sequential
 from keras.preprocessing.image import ImageDataGenerator
-from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.optimizers import SGD, Adam, RMSprop, Adadelta, Adagrad
+from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
+from keras.layers import Input, Dense, Conv2D, MaxPool2D, Dropout, Flatten
 
 seed = 7
 np.random.seed(seed)
@@ -30,18 +30,29 @@ file_to_open = data_folder + "laminas.pkl"
 #samples = 4999    # 7799
 df = pd.read_pickle(file_to_open)
 
+def cnn(input_img):
+    model = Sequential()
+    model.add(Conv2D(16, (2, 2), input_shape = input_img, activation = 'relu', padding = 'same', kernel_regularizer = regularizers.l2(1e-7)))
+    model.add(MaxPool2D(pool_size = (2, 2)))
+    model.add(Dropout(0.3))
+    model.add(Conv2D(13, (2, 2), activation = 'relu', padding = 'same', kernel_regularizer = regularizers.l2(1e-7)))
+    model.add(MaxPool2D(pool_size = (2, 2)))
+    model.add(Dropout(0.3))
+    model.add(Flatten())
+    model.add(Dense(13, activation = 'sigmoid', kernel_regularizer = regularizers.l2(1e-7)))
+
+    return model
+
 def loadFilesTrain(df):
-    #train = df.loc[:samples , :]
     images = df.loc[: , "lamina"]
     labels = df.loc[: , "classificacao"]
 
-    '''test = df.loc[7499:8799 , :]
-    images_test = test.loc[: , "lamina"]
-    labels_test = test.loc[: , "classificacao"]'''
-
     '''
     # -------------------- CROSS VALIDATION --------------------
-    
+    test = df.loc[7499:8799 , :]
+    images_test = test.loc[: , "lamina"]
+    labels_test = test.loc[: , "classificacao"]
+
     X = images
     Y = labels
     k_folds = 10
@@ -89,12 +100,8 @@ def main(epoch, DEBUG):
         def get_weights():
             for layer in model.layers: print(layer.get_config(), layer.get_weights())
 
-        '''number = random.randint(0, 1500)
-        print(img_array[number], labels_array[number])
-        exit()
-        '''
         img_array, labels_array = loadFilesTrain(df)
-        trainData, testData, trainLabels, testLabels = train_test_split(img_array, labels_array, test_size = 0.33, random_state = None)
+        trainData, testData, trainLabels, testLabels = train_test_split(img_array, labels_array, test_size = 0.25, random_state = None)
 
 
         print("[INFO] trainData shape: {}\n       testData shape: {}\n\n\
@@ -103,7 +110,6 @@ def main(epoch, DEBUG):
 
         time.sleep(3)
 
-    
         '''
         # Autoencoder
         # AUTOENCODER MODEL LOAD
@@ -152,7 +158,9 @@ def main(epoch, DEBUG):
             mode='max')
         early = EarlyStopping(monitor='val_acc', min_delta = 0, patience = patience, verbose = 1,
             mode = 'max', restore_best_weights = True)
-        callbacks_list = [checkpoint, early]
+        tensor_board = TensorBoard(log_dir = './logs', histogram_freq = 2, batch_size = BATCH_SIZE,
+            write_graph = True, write_images = False, embeddings_layer_names = None, update_freq = 'epoch') 
+        callbacks_list = [checkpoint, early, tensor_board]
 
         # DATA AUGMENTATION
         aug = ImageDataGenerator(rotation_range=20,
@@ -249,32 +257,16 @@ def main(epoch, DEBUG):
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("[INFO] Uso: python oil_class.py EPOCHS DEBUG")
-        print("[INFO] DEBUG -> 1 treinar rede neural\n2 -> testar rede neural")
+        print("[INFO] DEBUG -> 1 treinar a rede neural\n2 -> testar a rede neural")
 
     epoch = int(sys.argv[1])
     debug = int(sys.argv[2])
     main(epoch, debug)
 
 '''
------ name: trained_model -----
-Trained with 101426 epochs
-    Acc: 90.40%
-    Val loss: 0.2552
-    
------ name: 3_trained_model -----
-Trained with 1074 epochs
-    Acc: 89.22%
-    Val loss: 0.2539
+tensorboard --logdir logs/1 --port 6006
 
------ name: 3_trained_model (12/07) -----
-Trained with 2024 epochs
-    Acc: 88.49%
-    Val loss: 0.2742
+http://localhost:16006/
 
------ name: 4_trained_model (17/07) -----
-Trained with 1360 epochs
-    Acc: 88.26%
-    Val loss: 0.2728
+https://stackoverflow.com/questions/37987839/how-can-i-run-tensorboard-on-a-remote-server
 '''
-    #tensor_board = TensorBoard(log_dir = './logs', histogram_freq = 2, batch_size = BATCH_SIZE,
-        #write_graph = False, write_images = False, embeddings_layer_names = None, update_freq = 'epoch')    
