@@ -257,7 +257,7 @@ def main(epoch, DEBUG):
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("[INFO] Uso: python oil_class.py EPOCHS DEBUG")
-        print("[INFO] DEBUG -> 1 treinar a rede neural\n2 -> testar a rede neural")
+        print("[INFO] DEBUG\n1 -> treinar a rede neural\n2 -> testar a rede neural")
 
     epoch = int(sys.argv[1])
     debug = int(sys.argv[2])
