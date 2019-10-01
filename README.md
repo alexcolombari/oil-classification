@@ -1,6 +1,6 @@
 # Convolutional neural network applied to predictive maintenence of industrial equipment using oil samples.
 
-#### Under construction
+#### In development
 
 Developed using Deep Learning for image classification applied to microscopic oil samples. This is my final undergraduate project to get Computer Science Bachelor's title.
 
