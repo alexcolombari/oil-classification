@@ -25,10 +25,3 @@ Developed using Deep Learning for image classification applied to microscopic oi
     1 -> Train Model
     2 -> Test Model
   ```
-#### Testing upload images
-
-#### Last CNN layer input with bias
-![Last dense layer of CNN input with Bias](https://github.com/alexcolombari/cnn-oil-classification/blob/master/model_architecture/input_example.png)
-
-#### Last CNN layer output
-![Last dense layer of CNN output](https://github.com/alexcolombari/cnn-oil-classification/blob/master/model_architecture/output_example.png)
