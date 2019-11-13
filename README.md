@@ -2,7 +2,7 @@
 
 #### In development
 
-Developed using Deep Learning with Convolutional Neural Networks for image classification applied to microscopic oil samples. This is my final undergraduate project to get Computer Science Bachelor's title.
+An Deep Learning approach for oil samples image classification using Convolutional Neural Networks. This thesis was researched and developed to get my undergraduate Computer Science Bachalor's title.
 
 ### Using
 
