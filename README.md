@@ -1,8 +1,6 @@
 # Machine Learning applied to predictive maintenence of industrial equipment.
 
-#### In development
-
-An Deep Learning approach for oil samples image classification using Convolutional Neural Networks. This thesis was researched and developed to get my undergraduate Computer Science Bachelor's title.
+An Machine Learning approach for oil samples image classification using Convolutional Neural Networks. This thesis was researched and developed to get my undergraduate Computer Science Bachelor's title.
 
 ### Using
 
