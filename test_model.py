@@ -3,55 +3,43 @@
 '''
 import numpy as np
 import pandas as pd
-from PIL import Image
-from generate import *
 from keras.layers import Input
 from keras import backend as K
 from keras.models import load_model, Model
 
+from dataset import load_dataset
+
 def test_model():
-    dataframe = createImage()
+    testData, testLabels = load_dataset()
+
+    # DEFINE MODEL PARAMETERS
+    model = load_model(MODEL_PATH)
+    print(model.summary())
+
+    predict = model.predict(testData)
+    threshold = 0.5
+    predict[predict > threshold] = 1
+    predict[predict <= threshold] = 0
+
+    y_test_non_category = [ np.argmax(t) for t in testLabels ]
+    y_predict_non_category = [ np.argmax(z) for z in predict ]
+
+    cm = ConfusionMatrix(actual_vector=y_test_non_category, predict_vector=y_predict_non_category)
+    cm.save_html("classification_report")
+    # print('\nConfusion Matrix: \n', cm, '\n')
+
+    print(os.system("scp classification_report.html alex@192.168.0.180:~/Documents/git/oil_class"))
+
+    # target_names = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
     
-    # LOAD IMAGE
-    imagem = Image.open('test_image.jpg')
-    imagem = np.array(imagem)
-    imagem = np.resize(imagem, (1, 75, 100, 8))
-    imagem = imagem / 255.0
-    # DATASET CONVERTION TO ARRAY TYPE
-    img2array = []
+    # cm = confusion_matrix(y_test_non_category, y_predict_non_category)
+    # print('\nConfusion Matrix: \n', cm)
 
-    for i in range(len(imagem)):
-        # IMAGE ARRAY
-        imgarr = np.array(imagem[i])
-        #img2arr = np.resize(imgarr, (300, 400, 3))
-        img2array.append(imgarr)
+    cr = classification_report(y_test_non_category, y_predict_non_category)
+    print('\nClassification Report: \n', cr)
 
-
-    # LOAD MODEL
-    model_filepath = "model-save/"
-    model_name = model_filepath + "trained_model.hdf5"
-    model = load_model(model_name)
-
-    # MODEL PREDICT
-    pred = model.predict(imagem)
-    pred[pred>=0.5] = 1
-    pred[pred<0.5] = 0
-
-    vetor = getVetor()
-    vetor[vetor>=0.5] = 1
-    vetor[vetor<0.5] = 0
-
-    print("\nPredict Label {}:  {}".format(amostra, pred))
-    print("Original Label {}: {}".format(amostra, vetor))
-
-    erro = np.mean(pred != vetor)
-    
-    if (pred == vetor).all():
-        print("[INFO] Acertou 100%")
-    else:
-        print("[INFO] Erro de %.2f%%" % (erro*100))
-
-    return pred, vetor
+    scores = model.evaluate(testData, testLabels)
+    print("\nAccuracy: %.2f%%" % (scores[1]*100))
 
 if __name__ == "__main__":
     test_model()
