@@ -2,7 +2,7 @@
 
 #### In development
 
-An Deep Learning approach for oil samples image classification using Convolutional Neural Networks. This thesis was researched and developed to get my undergraduate Computer Science Bachalor's title.
+An Deep Learning approach for oil samples image classification using Convolutional Neural Networks. This thesis was researched and developed to get my undergraduate Computer Science Bachelor's title.
 
 ### Using
 
