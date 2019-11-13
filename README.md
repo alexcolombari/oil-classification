@@ -18,10 +18,7 @@ An Deep Learning approach for oil samples image classification using Convolution
 
   Parameters:
   ```
-  python oil_class.py EPOCHS DEBUG
+  python oil_class.py EPOCHS
   
   EPOCHS -> Number of epochs to train model
-  DEBUG:
-    1 -> Train Model
-    2 -> Test Model
   ```
