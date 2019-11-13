@@ -39,10 +39,10 @@ def cnn_3convs(input_img):
                     padding = 'same', kernel_regularizer = regularizers.l2(1e-3)))
     model.add(MaxPool2D(pool_size = (2, 2))) 
     model.add(Dropout(0.3))
-    #model.add(Conv2D(16, (3, 3), strides = 2, activation = 'relu',
-                    #padding = 'same', kernel_regularizer = regularizers.l2(1e-3)))
-    #model.add(MaxPool2D(pool_size = (2, 2))) 
-    #model.add(Dropout(0.3))
+    model.add(Conv2D(16, (3, 3), strides = 2, activation = 'relu',
+                    padding = 'same', kernel_regularizer = regularizers.l2(1e-3)))
+    model.add(MaxPool2D(pool_size = (2, 2))) 
+    model.add(Dropout(0.3))
     model.add(Flatten())
     model.add(Dense(26, activation = 'relu', bias_initializer = initializers.Constant(0.1),
                     kernel_regularizer = regularizers.l2(1e-3)))
