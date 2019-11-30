@@ -10,14 +10,7 @@ An Machine Learning approach for oil samples image classification using Convolut
    [PyCM](https://github.com/sepandhaghighi/pycm)<br/>
    [Scikit-Learn](https://scikit-learn.org/stable/)<br/>
    [TensorFlow](https://www.tensorflow.org/)
-  
-
-  Parameters:
-  ```
-  python oil_class.py EPOCHS
-  
-  EPOCHS -> Number of epochs to train model
-  ```
+   
 
 MIT License
 
