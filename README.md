@@ -14,4 +14,4 @@ A Machine Learning approach for oil samples image classification using Convoluti
 
 MIT License
 
-Copyright (c) 2019-2020 Alex Luís Colombari
+Copyright (c) 2019-2021 Alex Luís Colombari
